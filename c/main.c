@@ -13,21 +13,24 @@ void main() {
   int b[6] = {800, 555, 817, 124, 890, 456}; // 3642 / 6 = 607
   int c[6] = {345, 200, 700, 180, 600, 490}; // 2515 / 6 = 419
 
-  int sum[3] = {0, 0, 0};
+  int sum_a = 0;
+  int sum_b = 0;
+  int sum_c = 0;
 
   for (int i = 0; i < n; i++) {
-    sum[0] += a[i];
-    sum[1] += b[i];
-    sum[2] += c[i];
+    sum_a += a[i];
+    sum_b += b[i];
+    sum_c += c[i];
   }
 
-  sum[0] /= n;
-  int min = sum[0];
+  sum_a /= n;
+  int min = sum_a;
 
-  for (int i = 1; i < 3; i++) {
-    sum[i] /= n;
-    if (sum[i] < min) min = sum[i];
-  }
+  sum_b /= n;
+  if (sum_b < min) min = sum_b;
+
+  sum_c /= n;
+  if (sum_c < min) min = sum_c;
 
   int temp_d[18];
   int k = 0;
@@ -61,5 +64,5 @@ void main() {
   printf("------------\n");
 
 
-  printf("A: %d\nB: %d\nC: %d\nmin: %d\nk: %d\n", sum[0], sum[1], sum[2], min, k);
+  printf("A: %d\nB: %d\nC: %d\nmin: %d\nk: %d\n", sum_a, sum_b, sum_c, min, k);
 }
