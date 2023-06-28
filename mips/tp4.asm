@@ -54,19 +54,19 @@ prepare_d:    la     $s2, D        # $s2 = D
 
 
 sv_a:  lw     $t0, 0($s5)          # $t0 = a[i]
-       bgt    $t0, $s1, sv_b       # if a[i] > min then goto sv_b
+       bge    $t0, $s1, sv_b       # if a[i] > min then goto sv_b
        sw     $t0, 0($s2)          # d[k] = a[i]
        addi   $s3, $s3, 1          # k++     
        addi   $s2, $s2, 4          # próximo valor de d
 
 sv_b:  lw     $t0, 0($s6)          # $t0 = b[i]
-       bgt    $t0, $s1, sv_c       # if b[i] > min then goto sv_c
+       bge    $t0, $s1, sv_c       # if b[i] > min then goto sv_c
        sw     $t0, 0($s2)          # d[k] = b[i]
        addi   $s3, $s3, 1          # k++     
        addi   $s2, $s2, 4          # próximo valor de d
 
 sv_c:  lw     $t0, 0($s7)          # $t0 = c[i]
-       bgt    $t0, $s1, cond       # if c[i] > min then goto cond
+       bge    $t0, $s1, cond       # if c[i] > min then goto cond
        sw     $t0, 0($s2)          # d[k] = c[i]
        addi   $s3, $s3, 1          # k++     
        addi   $s2, $s2, 4          # próximo valor de d
