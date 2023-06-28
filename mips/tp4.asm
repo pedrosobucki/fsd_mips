@@ -1,0 +1,122 @@
+
+.text                        
+       .globl main   
+
+main:  la     $s0, n
+       lw     $s0, 0($s0)   # $s0 = n = 6
+       la     $s5, A        # $s5 = A
+       la     $s6, B        # $s6 = B
+       la     $s7, C        # $s7 = C
+
+       add    $s2, $0, $0   # $s2 = sum_a = 0
+       add    $s3, $0, $0   # $s3 = sum_b = 0
+       add    $s4, $0, $0   # $s4 = sum_c = 0
+
+       add    $t3, $0, $0   # i = 0
+
+sum:   add    $s2, $s2, 0($s5)     # $s2 += a[i] 
+       add    $s3, $s3, 0($s6)     # $s3 += b[i]
+       add    $s4, $s4, 0($s7)     # $s4 += c[i]
+       addi   $t3, $t3, 1          # i++
+       addi   $s5, $s5, 4          # pega próximo de A
+       addi   $s6, $s6, 4          # pega próximo de B
+       addi   $s7, $s7, 4          # pega próximo de C
+       bne    $t3, $s0, sum        # stop loop (mudar de end)
+
+       la     $s5, A        # $s5 = A
+       la     $s6, B        # $s6 = B
+       la     $s7, C        # $s7 = C
+
+media: add    $s1, $s2, $0  # $s1 = sum_a
+       jal    divisao       # $v1 = sum_a / n
+       add    $s2, $v1, $0  # sum_a = $v1
+       add    $s1, $s3, $0  # $s1 = sum_b
+       jal    divisao       # $v1 = sum_b / n
+       add    $s3, $v1, $0  # sum_b = $v1
+       add    $s1, $s4, $0  # $s1 = sum_c
+       jal    divisao       # $v1 = sum_c / n
+       add    $s4, $v1, $0  # sum_c = $v1
+
+       add    $s1, $s2, $0         # $s1 = min = sum_a
+       bgt    $s3, $s1, min_c      # if sum_b > min then skip B
+       add    $s1, $s3, $0         # else, min = sum_b
+
+min_c: bgt    $s4, $s1, prepare_d     # if sum_c > min then skip C
+       add    $s1, $s4, $0         # else, min = sum_c
+
+
+prepare_d:    la     $s2, D        # $s2 = D
+              add    $s3, $0, $0   # $s3 = k = 0
+              add    $t3, $0, $0   # $t3 = i = 0
+
+
+sv_a:  bgt    0($s5), $s1, sv_b
+       add    0($s2), 0($s5), 0($s5)
+       addi   $s3, $s3, 1
+       addi   $s2, $s2, 4
+
+sv_b:  bgt    0($s6), $s1, sv_c
+       add    0($s2), 0($s6), 0($s6)
+       addi   $s3, $s3, 1
+       addi   $s2, $s2, 4
+
+sv_c:  bgt    0($s7), $s1, cond
+       add    0($s2), 0($s7), 0($s7)
+       addi   $s3, $s3, 1
+       addi   $s2, $s2, 4
+
+cond:  addi   $s5, $s5, 4
+       addi   $s6, $s6, 4
+       addi   $s7, $s7, 4
+       addi   $t3, $t3, 1
+       blt    $t3, $s0, sv_a
+
+
+st:    la     $t0, k
+       sw     $s3, 0($t0)	# k = $s3
+       
+              
+
+end:   j      end 
+ 
+
+#################################################################################################
+###  Divisão serial  $s1/ $s0 -->   $v0--> resto    $v1 --> divisão
+################################################################################################
+divisao:
+          lui   $t0, 0x8000       # máscara para isolar bit mais significativo
+          li    $t1, 32           # contador de iterações
+
+          xor   $v0, $v0, $v0     # registrador P($v0)-A($v1) com  0 e o dividendo ($s1)
+          add   $v1, $s1, $0
+
+dloop:    and   $t2, $v1, $t0     # isola em t2 o bit mais significativo do registador 'A' ($v1)
+          sll   $v0, $v0, 1       # desloca para a esquerda o registrado P-A
+          sll   $v1, $v1, 1 
+
+          beq   $t2, $0, di1    
+          ori   $v0, $v0, 1       # coloca 1 no bit menos significativo do registador 'P'($v0)
+
+di1:      sub   $t2, $v0, $s0     # subtrai 'P'($v0) do divisor ($s0)
+          blt   $t2, $0, di2
+          add   $v0, $t2, $0      # se a subtração deu positiva, 'P'($v0) recebe o valor da subtração
+          ori   $v1, $v1, 1       # e 'A'($v1) recebe 1 no bit menos significativo
+
+di2:      addi  $t1, $t1, -1      # decrementa o número de iterações 
+          bne   $t1, $0, dloop 
+
+          jr    $ra  
+
+.data
+d1:       .word    0x3FABCD   # 4.172.749  resposta: 2891(0xB4B) resto 1036(40C)
+d2:       .word    0x5A3      # 1443
+div:      .word    0
+resto:    .word    0
+
+n:        .word    6
+k:        .word    0
+A:        .word    810 100 560 380 600 87
+B:        .word    800 555 817 124 890 456
+C:        .word    345 200 700 180 600 490
+D:        .word    0
+        
